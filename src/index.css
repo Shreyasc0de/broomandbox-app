@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+
+  --color-primary: #127117;
+  /* Exact Official Broom & Box Green from Logo */
+  --color-primary-dark: #0a520e;
+  --color-primary-light: #e4f5e5;
+  --color-surface: #f9fafb;
+  /* gray-50 */
+  --color-ink: #111827;
+  /* gray-900 */
+  --color-ink-muted: #4b5563;
+  /* gray-600 */
+}
+
+@layer base {
+  body {
+    @apply font-sans text-ink bg-white antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-bold tracking-tight;
+  }
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
+}
+
+.btn-primary {
+  @apply px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-all duration-300 shadow-md hover:shadow-lg active:scale-95;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-white text-ink font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 active:scale-95;
+}
