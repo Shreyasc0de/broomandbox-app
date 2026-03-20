@@ -181,7 +181,7 @@ const Staff = () => {
 
                             <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
                                 <span className={`w-2 h-2 rounded-full ${member.status === 'On Shift' ? 'bg-emerald-500 animate-pulse' :
-                                        member.status === 'Available' ? 'bg-blue-500' : 'bg-slate-300'
+                                    member.status === 'Available' ? 'bg-blue-500' : 'bg-slate-300'
                                     }`} />
                                 <span className="text-xs font-bold text-slate-600">{member.status}</span>
                             </div>

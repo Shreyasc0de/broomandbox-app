@@ -66,7 +66,7 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<PricingRule | null>(null);
-  
+
   // Notification settings
   const [notificationSettings, setNotificationSettings] = useState<NotificationSetting[]>([
     { id: '1', name: 'Booking Confirmation', type: 'Email', enabled: true },
@@ -74,7 +74,7 @@ const Settings = () => {
     { id: '3', name: 'Staff Check-in Alert', type: 'Push', enabled: true },
     { id: '4', name: 'Invoice Paid', type: 'Email', enabled: false },
   ]);
-  
+
   // Service types
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
     { id: '1', name: 'Standard Cleaning', description: 'Regular home cleaning service', active: true },
@@ -85,7 +85,7 @@ const Settings = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<ServiceType | null>(null);
   const [serviceForm, setServiceForm] = useState({ name: '', description: '' });
-  
+
   // General settings
   const [generalSettings, setGeneralSettings] = useState<GeneralSettings>({
     business_name: 'Broom & Box',
@@ -93,7 +93,7 @@ const Settings = () => {
     business_phone: '(678) 792-4686',
     timezone: 'America/New_York'
   });
-  
+
   // Password change
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -103,7 +103,7 @@ const Settings = () => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
-  
+
   // Roles
   const [roles, setRoles] = useState([
     { id: '1', name: 'Super Admin', users: 2, permissions: ['Full Access'], color: 'emerald' },
@@ -225,7 +225,7 @@ const Settings = () => {
 
   // Notification toggle handler
   const toggleNotification = (id: string) => {
-    setNotificationSettings(prev => 
+    setNotificationSettings(prev =>
       prev.map(n => n.id === id ? { ...n, enabled: !n.enabled } : n)
     );
   };
@@ -234,8 +234,8 @@ const Settings = () => {
   const handleServiceSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingService) {
-      setServiceTypes(prev => prev.map(s => 
-        s.id === editingService.id 
+      setServiceTypes(prev => prev.map(s =>
+        s.id === editingService.id
           ? { ...s, name: serviceForm.name, description: serviceForm.description }
           : s
       ));
@@ -279,8 +279,8 @@ const Settings = () => {
   const handleRoleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingRole) {
-      setRoles(prev => prev.map(r => 
-        r.id === editingRole.id 
+      setRoles(prev => prev.map(r =>
+        r.id === editingRole.id
           ? { ...r, name: roleForm.name, permissions: roleForm.permissions }
           : r
       ));
@@ -522,7 +522,7 @@ const Settings = () => {
                     <ShieldCheck className="w-5 h-5 text-emerald-500" />
                     User & Role Management
                   </h3>
-                  <button 
+                  <button
                     onClick={() => openRoleModal()}
                     className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all">
                     <Plus className="w-3 h-3" />
@@ -542,13 +542,13 @@ const Settings = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button 
+                        <button
                           onClick={() => openRoleModal(role)}
                           className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1">
                           Edit Permissions <ChevronRight className="w-3 h-3" />
                         </button>
                         {role.name !== 'Super Admin' && (
-                          <button 
+                          <button
                             onClick={() => deleteRole(role.id)}
                             className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-500">
                             <Trash2 className="w-4 h-4" />
@@ -587,7 +587,7 @@ const Settings = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <button 
+                          <button
                             onClick={() => toggleNotification(template.id)}
                             className={`w-10 h-5 rounded-full relative transition-colors cursor-pointer ${template.enabled ? 'bg-emerald-500' : 'bg-slate-200'}`}>
                             <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${template.enabled ? 'right-1' : 'left-1'}`} />
@@ -616,7 +616,7 @@ const Settings = () => {
                     <SettingsIcon className="w-5 h-5 text-emerald-500" />
                     Service Types
                   </h3>
-                  <button 
+                  <button
                     onClick={() => openServiceModal()}
                     className="flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-emerald-600 transition-all">
                     <Plus className="w-3 h-3" />
@@ -636,7 +636,7 @@ const Settings = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button 
+                        <button
                           onClick={() => toggleService(service.id)}
                           className={`px-3 py-1 rounded-full text-xs font-bold ${service.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
                           {service.active ? 'Active' : 'Inactive'}
@@ -736,7 +736,7 @@ const Settings = () => {
                     <Lock className="w-5 h-5 text-emerald-500" />
                     Change Password
                   </h3>
-                  
+
                   {passwordSuccess && (
                     <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -1001,11 +1001,10 @@ const Settings = () => {
                         key={perm}
                         type="button"
                         onClick={() => togglePermission(perm)}
-                        className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all ${
-                          roleForm.permissions.includes(perm)
-                            ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
-                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-                        }`}
+                        className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all ${roleForm.permissions.includes(perm)
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                          }`}
                       >
                         {perm}
                       </button>
