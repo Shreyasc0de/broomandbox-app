@@ -31,11 +31,11 @@ async function startServer() {
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
   app.use(cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, etc.) in development
-      if (!origin && process.env.NODE_ENV !== 'production') {
+      // Allow requests with no origin (direct navigation, static assets)
+      if (!origin) {
         return callback(null, true);
       }
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
