@@ -218,8 +218,8 @@ const LEAD_CAPTURED_RESPONSE = "Thanks for sharing your contact info! 🎉 Our t
 const DEFAULT_RESPONSE = "I'm not quite sure about that one! 🤔 For specific questions, you can call us at (214) 433-2703 or visit /contact. I can help with pricing, services, booking, and service areas - just ask! ✨";
 
 // Import email service for lead notifications
-import { sendChatbotLeadNotification } from '../../services/emailService';
-import supabase from '../../db';
+import { sendChatbotLeadNotification } from '../../services/emailService.js';
+import supabase from '../../db/index.js';
 
 export function registerChatRoutes({ app }: RouteContext) {
   app.post('/api/chat', chatRateLimiter, async (req, res) => {
