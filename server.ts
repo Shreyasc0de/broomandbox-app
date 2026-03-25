@@ -3,7 +3,6 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 import cors from 'cors';
 
 import supabase from './src/db/index.js';
@@ -78,6 +77,7 @@ export default app;
 if (!process.env.VERCEL) {
   if (process.env.NODE_ENV !== 'production') {
     (async () => {
+      const { createServer: createViteServer } = await import('vite');
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: 'spa',
