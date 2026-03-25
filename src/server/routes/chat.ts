@@ -159,6 +159,7 @@ function findBestMatch(userMessage: string): string | null {
 // Regex patterns for contact info extraction
 const PHONE_REGEX = /(?:\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/g;
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const ADDRESS_REGEX = /\d{1,5}\s+[a-zA-Z0-9\s.,]+(?:st|street|ave|avenue|rd|road|blvd|boulevard|ln|lane|dr|drive|ct|court|apt|apartment|suite|ste|pl|place)\b[a-zA-Z0-9\s.,]*/i;
 const NAME_PATTERNS = [
   /(?:my name is|i'm|i am|this is|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
   /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+here/i,
@@ -168,6 +169,7 @@ interface ExtractedLead {
   phone?: string;
   email?: string;
   name?: string;
+  address?: string;
 }
 
 function extractContactInfo(messages: { role: string; text: string }[]): ExtractedLead {
@@ -201,6 +203,17 @@ function extractContactInfo(messages: { role: string; text: string }[]): Extract
     if (match && match[1]) {
       lead.name = match[1].trim();
       break;
+    }
+  }
+
+  // Extract address or zip code
+  const addressMatch = allUserText.match(ADDRESS_REGEX);
+  if (addressMatch) {
+    lead.address = addressMatch[0].trim();
+  } else {
+    const zipMatches = allUserText.match(/\b\d{5}(?:-\d{4})?\b/g);
+    if (zipMatches && zipMatches.length > 0) {
+      lead.address = zipMatches[0];
     }
   }
   
@@ -266,7 +279,7 @@ export function registerChatRoutes({ app }: RouteContext) {
           name: extractedLead.name,
           phone: extractedLead.phone,
           email: extractedLead.email,
-          message: userText,
+          message: userText + (extractedLead.address ? `\n\nAddress detected: ${extractedLead.address}` : ''),
           conversation: conversationHistory,
         });
         
@@ -308,26 +321,37 @@ export function registerChatRoutes({ app }: RouteContext) {
             parts: [{ text: message.text }],
           })),
           config: {
-            systemInstruction: `You are Sparkle, the friendly and professional AI assistant for "Broom & Box", a premium residential and commercial cleaning company.
+            systemInstruction: `You are Sparkle, the friendly, professional, and highly-converting AI assistant for "Broom & Box", a premium residential and commercial cleaning company.
           
           Your goals:
-          1. Answer general questions using the REAL-TIME KNOWLEDGE BASE provided below. Do not make up locations or specific prices!
-          2. Capture leads: If they want a quote, pricing details, or have specific questions, ask for their name and phone number so our team can follow up.
-          3. Be helpful, polite, and efficient.
+          1. Answer questions using the REAL-TIME KNOWLEDGE BASE.
+          2. Guide users towards getting a free custom quote or booking.
+          3. Collect LEAD information naturally (Name, Phone, Email, Address).
           
           =======================================
-          REAL-TIME KNOWLEDGE BASE:
-          Currently Serving These Areas: ${activeCities || 'DFW Metroplex and surrounding areas.'}
-          
-          Other Info:
-          - 100% satisfaction guarantee.
-          - We offer Residential, Commercial, Deep Cleaning, and Move-in/Move-out services.
-          - Eco-friendly products available.
-          - Phone: (214) 433-2703
-          - Quick links: /about, /service-areas, /contact, /get-quote.
+          KNOWLEDGE BASE:
+          - Services: House cleaning, Deep cleaning, Move-in/move-out cleaning, Office cleaning, Carpet cleaning, Window cleaning.
+          - Pricing: Standard house cleaning starts at $120. Always offer a "free custom quote".
+          - Availability: We offer flexible scheduling, including same-day or next-day service based on availability.
+          - Service Areas: We proudly serve ${activeCities || 'the DFW Metroplex and surrounding areas.'}
+          - Supplies: Yes, we bring our own professional-grade, eco-friendly supplies!
+          - Trust: We are fully licensed, insured, and bonded. All cleaners are background-checked. We offer a 100% satisfaction guarantee.
+          - Stay: You do not need to be home during the cleaning.
+          - Payment: We accept all major credit cards, Zelle, and Venmo. Payment is due after service.
+          - Cancellation: 24-hour notice required for cancellations.
+          - Special Offers: Strategically mention our "First-time customer discount", "Weekly/biweekly package deals", and "Referral discounts".
+          - Human Handoff: If they ask for a real person, tell them to call or text us at (214) 433-2703.
           =======================================
           
-          Keep responses concise (max 2-3 sentences) and formatted for a small chat window. Use emojis! ✨`,
+          CONVERSATION FLOW:
+          - If they ask for a quote or booking, ask these questions one by one naturally: 
+            1) What type of cleaning do you need? 
+            2) How many rooms or square feet? 
+            3) What city or zip code are you in? 
+            4) When do you need service? (One-time or recurring?)
+          - Once they provide details, naturally ask for their Name, Phone Number, and Email to finalize the quote or booking.
+          
+          Keep responses concise (max 3 sentences), conversational, and formatted for a small chat window. Use emojis! ✨`,
           },
         });
 

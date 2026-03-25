@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X, Send, Loader2, Bot, User, Calendar, Info, RotateCcw } from 'lucide-react';
+import { MessageSquare, X, Send, Loader2, Bot, User, Calendar, Info, RotateCcw, Tag, HelpCircle, Phone } from 'lucide-react';
 import { getApiUrl } from '../lib/api';
 
 const MAX_INPUT_LENGTH = 500;
@@ -44,19 +44,17 @@ const Chatbot: React.FC = () => {
     setInput('');
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      text: input,
+      text,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInput('');
     setIsLoading(true);
 
     try {
@@ -96,6 +94,13 @@ const Chatbot: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentInput = input;
+    setInput('');
+    await sendMessage(currentInput);
   };
 
   return (
@@ -178,21 +183,24 @@ const Chatbot: React.FC = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar bg-white border-t border-gray-50">
-              <button
-                onClick={() => setInput("How much for a house cleaning?")}
-                className="whitespace-nowrap px-3 py-1.5 rounded-full bg-surface border border-gray-100 text-[11px] font-medium text-ink-muted hover:border-primary hover:text-primary transition-all flex items-center gap-1.5"
-              >
-                <Info className="w-3 h-3" />
-                Pricing?
-              </button>
-              <button
-                onClick={() => setInput("I want to book an appointment")}
-                className="whitespace-nowrap px-3 py-1.5 rounded-full bg-surface border border-gray-100 text-[11px] font-medium text-ink-muted hover:border-primary hover:text-primary transition-all flex items-center gap-1.5"
-              >
-                <Calendar className="w-3 h-3" />
-                Book Now
-              </button>
+            <div className="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar bg-white border-t border-gray-50 flex-none hide-scrollbars">
+              {[
+                { label: 'Get a Quote', icon: Tag, query: "I'd like to get a free quote" },
+                { label: 'Book a Cleaning', icon: Calendar, query: "I want to book a cleaning" },
+                { label: 'Services', icon: HelpCircle, query: "What services do you offer?" },
+                { label: 'Pricing', icon: Info, query: "How much does a cleaning cost?" },
+                { label: 'Speak to a Rep', icon: Phone, query: "I need to speak to a representative" }
+              ].map(action => (
+                <button
+                  key={action.label}
+                  onClick={() => sendMessage(action.query)}
+                  disabled={isLoading}
+                  className="whitespace-nowrap px-3 py-1.5 rounded-full bg-surface border border-gray-100 text-[11px] font-medium text-ink-muted hover:border-primary hover:text-primary transition-all flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <action.icon className="w-3 h-3" />
+                  {action.label}
+                </button>
+              ))}
             </div>
 
             {/* Input */}
