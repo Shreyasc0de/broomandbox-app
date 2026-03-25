@@ -276,7 +276,7 @@ export function registerChatRoutes({ app }: RouteContext) {
         });
       }
 
-      // Try local FAQ first (instant response)
+      // Try local FAQ first (instant response if no API key)
       const faqMatch = findBestMatch(userText);
       
       // If no API key, use FAQ or default response
@@ -284,16 +284,22 @@ export function registerChatRoutes({ app }: RouteContext) {
         return res.json({ text: faqMatch || DEFAULT_RESPONSE });
       }
 
-      // If we have a high-confidence FAQ match, use it (faster + free)
-      // Only fall back to Gemini for complex questions
-      if (faqMatch) {
-        return res.json({ text: faqMatch });
-      }
+      // We have an API key, so we let Gemini handle the response using the live RAG knowledge base.
+      // (Bypassing the hardcoded FAQ so prices/areas are accurate)
 
       // Use Gemini for complex questions
       try {
         const { GoogleGenAI } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey });
+
+        // --- RAG: DYNAMIC KNOWLEDGE RETRIEVAL ---
+        // 1. Fetch active service areas
+        const { data: areasData } = await supabase
+          .from('service_areas')
+          .select('city')
+          .eq('active', true);
+        const activeCities = Array.from(new Set(areasData?.map(a => a.city) || [])).join(', ');
+        // --- END RAG ---
 
         const result = await ai.models.generateContent({
           model: 'gemini-2.0-flash-exp',
@@ -302,19 +308,24 @@ export function registerChatRoutes({ app }: RouteContext) {
             parts: [{ text: message.text }],
           })),
           config: {
-            systemInstruction: `You are Sparkle, the friendly and professional AI assistant for "Broom & Box", a premium residential and commercial cleaning company in the Dallas-Fort Worth area (serving Dallas, Irving, Plano, and Arlington). 
+            systemInstruction: `You are Sparkle, the friendly and professional AI assistant for "Broom & Box", a premium residential and commercial cleaning company.
           
           Your goals:
-          1. Answer quick questions about services (Residential, Commercial, Deep Cleaning, Move-in/Move-out).
-          2. Assist with appointment inquiries. We have new pages: /about, /service-areas, and /contact.
-          3. Capture leads: If they want a quote or have specific questions, ask for their name and phone number.
-          4. Be helpful, polite, and efficient.
+          1. Answer general questions using the REAL-TIME KNOWLEDGE BASE provided below. Do not make up locations or specific prices!
+          2. Capture leads: If they want a quote, pricing details, or have specific questions, ask for their name and phone number so our team can follow up.
+          3. Be helpful, polite, and efficient.
           
-          Key info:
-          - Serves DFW: Dallas, Irving, Plano, Arlington, etc.
+          =======================================
+          REAL-TIME KNOWLEDGE BASE:
+          Currently Serving These Areas: ${activeCities || 'DFW Metroplex and surrounding areas.'}
+          
+          Other Info:
           - 100% satisfaction guarantee.
+          - We offer Residential, Commercial, Deep Cleaning, and Move-in/Move-out services.
           - Eco-friendly products available.
           - Phone: (214) 433-2703
+          - Quick links: /about, /service-areas, /contact, /get-quote.
+          =======================================
           
           Keep responses concise (max 2-3 sentences) and formatted for a small chat window. Use emojis! ✨`,
           },

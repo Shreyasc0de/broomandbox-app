@@ -2,6 +2,16 @@
  * API helper for making authenticated requests to the backend
  */
 
+// API base URL - empty string for same-origin, or full URL for cross-origin (split deployment)
+export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
+/**
+ * Get full API URL (prepends base URL for split deployment)
+ */
+export function getApiUrl(endpoint: string): string {
+  return `${API_BASE_URL}${endpoint}`;
+}
+
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface ApiRequestOptions {
@@ -50,7 +60,8 @@ export async function apiRequest<T = unknown>(
   }
 
   try {
-    const response = await fetch(endpoint, {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
       method,
       headers: requestHeaders,
       body: body ? JSON.stringify(body) : undefined,
@@ -98,7 +109,8 @@ export async function apiUpload<T = unknown>(
   }
 
   try {
-    const response = await fetch(endpoint, {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
       method: 'POST',
       headers,
       body: formData,

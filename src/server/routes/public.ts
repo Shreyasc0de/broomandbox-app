@@ -224,4 +224,33 @@ export function registerPublicRoutes({ app, supabase, sendBookingConfirmation, s
       ]);
     }
   });
+
+  // Public endpoint for active service areas
+  app.get('/api/public/service-areas', async (_req, res) => {
+    try {
+      const { data, error } = await supabase
+        .from('service_areas')
+        .select('zip_code, city')
+        .eq('active', true)
+        .order('city');
+
+      if (error) {
+        throw error;
+      }
+
+      // Filter out duplicate cities since multiple zip codes can map to the same city
+      const uniqueCitiesMap = new Map();
+      data?.forEach(area => {
+        if (!uniqueCitiesMap.has(area.city)) {
+          uniqueCitiesMap.set(area.city, area);
+        }
+      });
+      
+      const uniqueAreas = Array.from(uniqueCitiesMap.values());
+      return res.json(uniqueAreas);
+    } catch (error) {
+      console.error('Failed to fetch public service areas:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 }

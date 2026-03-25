@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Maximize2, X } from 'lucide-react';
 import BeforeAfterSlider from './BeforeAfterSlider';
+import { getApiUrl } from '../../lib/api';
 
 interface Transformation {
     id: number;
@@ -34,8 +35,8 @@ const Gallery = () => {
     useEffect(() => {
         // Fetch individual gallery photos AND transformations in parallel
         Promise.all([
-            fetch('/api/gallery-images').then(r => r.json()).catch(() => []),
-            fetch('/api/transformations').then(r => r.json()).catch(() => []),
+            fetch(getApiUrl('/api/gallery-images')).then(r => r.json()).catch(() => []),
+            fetch(getApiUrl('/api/transformations')).then(r => r.json()).catch(() => []),
         ]).then(([photos, txs]: [GalleryImage[], Transformation[]]) => {
             // Prefer admin-uploaded gallery photos; fallback to static Unsplash
             if (Array.isArray(photos) && photos.length > 0) {

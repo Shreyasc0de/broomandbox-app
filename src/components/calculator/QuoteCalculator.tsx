@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Building2, Home, ArrowRight, ArrowLeft, CheckCircle2, Calendar, Droplets } from 'lucide-react';
 import { calculateEstimate, PricingRule, defaultPricingRules } from '../../lib/pricingLogic';
 import { Link } from 'react-router-dom';
+import { getApiUrl } from '../../lib/api';
 
 const serviceOptions = [
     { id: 'Standard Cleaning', title: 'Standard Cleaning', icon: Home, desc: 'Regular maintenance for your home' },
@@ -33,7 +34,7 @@ export const QuoteCalculator = () => {
 
     // Fetch pricing rules from database
     useEffect(() => {
-        fetch('/api/pricing')
+        fetch(getApiUrl('/api/pricing'))
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
@@ -55,7 +56,7 @@ export const QuoteCalculator = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/quotes', {
+            const response = await fetch(getApiUrl('/api/quotes'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

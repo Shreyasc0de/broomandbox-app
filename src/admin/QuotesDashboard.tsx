@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Search, User, Phone, Mail, Clock, DollarSign, RefreshCw, CheckCircle2, ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
+import { getApiUrl } from '../lib/api';
 
 interface Quote {
     id: string;
@@ -23,7 +24,7 @@ const QuotesDashboard = () => {
     const fetchQuotes = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch('/api/quotes');
+            const res = await fetch(getApiUrl('/api/quotes'));
             if (!res.ok) throw new Error('Failed to fetch quotes');
             const data = await res.json();
             setQuotes(data || []);
@@ -40,7 +41,7 @@ const QuotesDashboard = () => {
 
     const updateStatus = async (id: string, newStatus: string) => {
         try {
-            const res = await fetch(`/api/quotes/${id}`, {
+            const res = await fetch(getApiUrl(`/api/quotes/${id}`), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })

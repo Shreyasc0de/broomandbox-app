@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShieldCheck, MapPin, Loader2, ShieldAlert, CheckCircle2, Info, Calendar } from 'lucide-react';
 import DiamondPattern from '../ui/DiamondPattern';
+import { getApiUrl } from '../../lib/api';
 
 const Hero = () => {
     const [zipCode, setZipCode] = useState('');
@@ -59,7 +60,7 @@ const Hero = () => {
             setAvailabilityStatus('checking');
             setLastCheckedZip(zipCode);
             try {
-                const res = await fetch(`/api/check-availability?zip=${zipCode}`);
+                const res = await fetch(getApiUrl(`/api/check-availability?zip=${zipCode}`));
                 const data = await res.json();
                 if (data.available) {
                     setAvailableCity(data.city);
@@ -77,7 +78,7 @@ const Hero = () => {
         e.preventDefault();
         if (validateForm()) {
             try {
-                await fetch('/api/bookings', {
+                await fetch(getApiUrl('/api/bookings'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
