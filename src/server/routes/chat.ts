@@ -314,12 +314,19 @@ export function registerChatRoutes({ app }: RouteContext) {
         const activeCities = Array.from(new Set(areasData?.map(a => a.city) || [])).join(', ');
         // --- END RAG ---
 
+        let validContents = messages.map((message: any) => ({
+          role: message.role === 'model' ? 'model' : 'user',
+          parts: [{ text: message.text }],
+        }));
+
+        // Gemini requires the first message in contents to be from 'user'
+        if (validContents.length > 0 && validContents[0].role === 'model') {
+          validContents.shift();
+        }
+
         const result = await ai.models.generateContent({
           model: 'gemini-2.0-flash-exp',
-          contents: messages.map((message: any) => ({
-            role: message.role === 'model' ? 'model' : 'user',
-            parts: [{ text: message.text }],
-          })),
+          contents: validContents,
           config: {
             systemInstruction: `You are Sparkle, the friendly, professional, and highly-converting AI assistant for "Broom & Box", a premium residential and commercial cleaning company.
           
