@@ -325,7 +325,7 @@ export function registerChatRoutes({ app }: RouteContext) {
         }
 
         const result = await ai.models.generateContent({
-          model: 'gemini-2.0-flash-exp',
+          model: 'gemini-flash-lite-latest',
           contents: validContents,
           config: {
             systemInstruction: `You are Sparkle, the friendly, professional, and highly-converting AI assistant for "Broom & Box", a premium residential and commercial cleaning company.
