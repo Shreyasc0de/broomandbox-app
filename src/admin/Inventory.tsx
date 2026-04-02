@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOutletContext } from 'react-router-dom';
+import { apiRequest } from '../lib/api';
 
 interface InventoryItem {
   id: string;
@@ -42,8 +43,8 @@ const Inventory = () => {
 
   const fetchInventory = async () => {
     try {
-      const res = await fetch('/api/inventory');
-      const data = await res.json();
+      const { data, error: apiError } = await apiRequest<InventoryItem[]>('/api/inventory');
+      if (apiError) throw new Error(apiError);
       setInventory(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch inventory:', error);
@@ -61,12 +62,11 @@ const Inventory = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/inventory', {
+      const { error: apiError } = await apiRequest('/api/inventory', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
+        body: newItem
       });
-      if (res.ok) {
+      if (!apiError) {
         setShowAddModal(false);
         setNewItem({ name: '', category: 'Chemicals', stock: 0, unit: 'Liters', min_stock: 10 });
         fetchInventory();
@@ -81,8 +81,8 @@ const Inventory = () => {
   const handleDeleteItem = async (id: string) => {
     if (!confirm('Are you sure you want to remove this item?')) return;
     try {
-      const res = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
-      if (res.ok) {
+      const { error: apiError } = await apiRequest(`/api/inventory/${id}`, { method: 'DELETE' });
+      if (!apiError) {
         fetchInventory();
       }
     } catch (error) {

@@ -21,6 +21,7 @@ const upload = multer({
 });
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy configured by Vercel to fix express-rate-limit warning
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 app.use(express.json());
