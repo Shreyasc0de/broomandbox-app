@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOutletContext } from 'react-router-dom';
+import { apiRequest } from '../lib/api';
 
 interface ServiceArea {
     id: string | number;
@@ -41,8 +42,8 @@ const ServiceAreas = () => {
 
     const fetchAreas = async () => {
         try {
-            const res = await fetch('/api/service-areas');
-            const data = await res.json();
+            const { data, error } = await apiRequest<ServiceArea[]>('/api/service-areas');
+            if (error) throw new Error(error);
             setAreas(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Failed to fetch service areas:', err);
@@ -70,18 +71,16 @@ const ServiceAreas = () => {
         setError('');
         setAdding(true);
         try {
-            const res = await fetch('/api/service-areas', {
+            const { error: apiError } = await apiRequest('/api/service-areas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newArea),
+                body: newArea,
             });
-            if (res.ok) {
+            if (!apiError) {
                 setNewArea({ zip_code: '', city: '' });
                 setShowAddModal(false);
                 await fetchAreas();
             } else {
-                const d = await res.json();
-                setError(d.error || 'Failed to add area');
+                setError(apiError || 'Failed to add area');
             }
         } catch (err) {
             setError('Network error. Please try again.');
@@ -93,10 +92,9 @@ const ServiceAreas = () => {
     const handleToggle = async (area: ServiceArea) => {
         const newStatus = !area.active;
         try {
-            await fetch(`/api/service-areas/${area.id}`, {
+            await apiRequest(`/api/service-areas/${area.id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: newStatus }),
+                body: { active: newStatus },
             });
             fetchAreas();
         } catch (err) {
@@ -107,7 +105,7 @@ const ServiceAreas = () => {
     const handleDelete = async (id: string | number) => {
         if (!confirm('Are you sure you want to remove this service area?')) return;
         try {
-            await fetch(`/api/service-areas/${id}`, { method: 'DELETE' });
+            await apiRequest(`/api/service-areas/${id}`, { method: 'DELETE' });
             fetchAreas();
         } catch (err) {
             console.error('Failed to delete area:', err);
